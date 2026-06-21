@@ -1,33 +1,36 @@
-from langchain_core.messages import AIMessageChunk
+from langchain_core.messages import AIMessageChunk, HumanMessage
 import asyncio
 
-from nevara.modules.util import chunk_print, process_sentence
-from nevara.agent import NevaraV1, GlobalState, memorySystem
-from nevara.modules.tts import TTS_engine, text_queue
+from nevara.components.tts import TTS_engine, text_queue
+from nevara.schema import state as schema_state
+from nevara.utils import tts_kit
+from nevara import agent
 
 class Interface:
     def __init__(self) -> None:
         pass
     
     def grace_shutdown(self):
-        memorySystem.session_end()
+        agent.converstation_memory.session_end()
     
     def stream(self, userInput: str):
-        for chunk in NevaraV1.stream(GlobalState(userInput=userInput), stream_mode='messages'):
+        in_state = schema_state.GlobalState(user_input=HumanMessage(content=userInput))
+        for chunk in agent.NevaraV1.stream(in_state, stream_mode='messages'):
             message, metadata = chunk
             print(metadata)
-            chunk_print(message)
+            tts_kit.chunk_print(message)
             
     async def astream(self, userInput: str):
         sentence = ''
-        async for chunk in NevaraV1.astream(GlobalState(userInput=userInput), stream_mode='messages'):
+        in_state = schema_state.GlobalState(user_input=HumanMessage(content=userInput))
+        async for chunk in agent.NevaraV1.astream(in_state, stream_mode='messages'):
             message, metadata = chunk
             if type(metadata) != dict: continue
             
             if metadata['langgraph_node'] == 'Brain' and type(message) == AIMessageChunk:
                 sentence += str(message.content)
-                sentence = await process_sentence(sentence)
-            chunk_print(message)
+                sentence = await tts_kit.process_sentence(sentence)
+            tts_kit.chunk_print(message)
         await text_queue.put(sentence)
         await text_queue.put(None)
         

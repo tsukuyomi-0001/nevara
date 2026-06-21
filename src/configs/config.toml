@@ -1,0 +1,14 @@
+[model]
+brain = "qwen3.5:4b"
+struct_model = "qwen2.5-coder:3b-instruct"
+ctx_window = 4096
+keep_alive = "30m"
+embed_model = "mxbai-embed-large:latest"
+
+[memory]
+ctx = 4096
+token_cap = 1.3
+latestHistory = 3
+
+[special_config]
+working_directory = "<path_to>/agent_workspace"

@@ -6,7 +6,7 @@ interface = Interface()
 async def main():
     while True:
         userInput = input("user: ")
-        if userInput == '/exit':  break
+        if userInput == '/exit': interface.grace_shutdown(); break
         await interface.astream_audioSupport(userInput=userInput)
 
 if __name__ == "__main__":

@@ -1,7 +1,6 @@
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, AIMessageChunk
 from datetime import datetime
 from pathlib import Path
-import sounddevice as sd
 import emoji
 import json
 import os
@@ -65,16 +64,6 @@ def message_load_deserial(path) -> messageList:
             for msg in content
         ]
     return message_deserial
-
-def speed_adjust(text: str) -> float:
-    text_split = len(text.split())
-    if text_split <= 10: return 0.9
-    elif 10 < text_split <= 30: return 1
-    else: return 1.1
-
-def play_audio(audio):
-    sd.play(audio, samplerate=24000)
-    sd.wait()
     
 def chunk_print(inChunk):
     if type(inChunk) == AIMessageChunk:
